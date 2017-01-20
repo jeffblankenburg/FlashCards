@@ -1,8 +1,8 @@
-ElementIntent the answer is {Element}
-ElementIntent my answer is {Element}
-ElementIntent is it {Element}
-ElementIntent {Element} is my answer
-ElementIntent {Element}
+ElementIntent the answer is {element}
+ElementIntent my answer is {element}
+ElementIntent is it {element}
+ElementIntent {element} is my answer
+ElementIntent {element}
 
 AMAZON.StartOverIntent start game
 AMAZON.StartOverIntent new game
