@@ -1,6 +1,6 @@
 {
   "intents": [
-    {"intent": "ElementIntent", "slots":[{"name": "element", "type": "ELEMENTS"}]},
+    {"intent": "ElementIntent", "slots":[{"name": "element", "type": "ELEMENT"}]},
     {"intent": "DontKnowIntent"},
     {"intent": "AMAZON.StartOverIntent"},
     {"intent": "AMAZON.RepeatIntent"},
