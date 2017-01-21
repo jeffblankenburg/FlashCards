@@ -5,117 +5,65 @@ const D = "----------";
 
 const APP_ID = "amzn1.ask.skill.9fa2bb31-c881-4a4f-9dfe-491b382e7519";  // TODO replace with your app ID (OPTIONAL).
 
-var states = {
-    START: "_START",
-    NAMES: "_NAMES",
-    WEIGHTS: "_WEIGHTS",
-    NUMBERS: "_NUMBERS",
-    SYMBOLS: "_SYMBOLS",
-};
-
 const handlers = {
-    "LaunchRequest": function () {
-        console.log(D + "LAUNCH REQUEST.  SETTING STATE = START.  REDIRECT TO BeginHere.")
-        this.handler.state = states.START;
-        this.emitWithState("BeginHere");
+     "LaunchRequest": function() {
+        this.emit(":tell", "LaunchRequest");
+     },
+     "ElementIntent": function() {
+         console.log("this.event.request.intent.slots = " + this.event.request.intent.slots);
+         writeSlots(this.event.request.intent.slots);
+        var requestedElement = this.event.request.intent.slots.element.value;
+        console.log(D + "DescribeElement.  STATE == DESCRIBE.  Requested Element: " + requestedElement);
+        var elementArray = this.t("ELEMENTS");
+        console.log(D + "elementArray == " + elementArray);
+        var element = elementArray.filter(x => x.name.toLowerCase() === requestedElement);
+        console.log(D + "element == " + element);
+        console.log(D + "element.length == " + element.length);
+        if (element.length === 0)
+        {
+            console.log(D + "DID NOT FIND AN ELEMENT MATCH.")
+        }
+        console.log(D + "element[0].symbol == " + element[0].symbol);
+        this.emit(":tell", element[0].symbol);
     },
-    "NameCardsIntent": function() {
-        console.log(D + "NameCardsIntent.  NO STATE.  SETTING STATE = NAMES.  REDIRECT TO NameCards.");
-        this.handler.state = states.NAMES;
-        this.emitWithState("NameCards");
-    },
-    "WeightCardsIntent": function() {
-        console.log(D + "WeightCardsIntent.  NO STATE.  SETTING STATE = WEIGHTS.  REDIRECT TO WeightCards.");
-        this.handler.state = states.WEIGHTS;
-        this.emitWithState("WeightCards");
-    },
-    "NumberCardsIntent": function() {
-        console.log(D + "NumberCardsIntent.  NO STATE.  SETTING STATE = NUMBERS.  REDIRECT TO NumberCards.");
-        this.handler.state = states.NUMBERS;
-        this.emitWithState("NumberCards");
-    },
-    "SymbolCardsIntent": function() {
-        console.log(D + "SymbolCardsIntent.  NO STATE.  SETTING STATE = SYMBOLS.  REDIRECT TO SymbolCards.");
-        this.handler.state = states.SYMBOLS;
-        this.emitWithState("SymbolCards");
-    },
-    "Unhandled": function()
-    {
-        console.log(D + "UNHANDLED INTENT.  NO STATE.  REDIRECTING TO LaunchRequest.")
-        this.emitWithState("LaunchRequest");
+    "Unhandled": function() {
+        console.log(D + "UNHANDLED!");
+        this.emit(":tell", "UNHANDLED!");
     }
 };
 
-const startHandlers = Alexa.CreateStateHandler(states.START,
-{
-    "BeginHere": function() {
-        this.emit(":ask", "Welcome to Chemistry Flash Cards! Which cards would you like to use?  Symbols, Element Names, Atomic Weights, or Atomic Numbers?");
-    },
-    "NameCardsIntent": function() {
-        console.log(D + "NameCardsIntent.  STATE == START.  SETTING STATE = NAMES.  REDIRECT TO NameCards.");
-        this.handler.state = states.NAMES;
-        this.emitWithState("NameCards");
-    },
-    "WeightCardsIntent": function() {
-        console.log(D + "WeightCardsIntent.  STATE == START.  SETTING STATE = WEIGHTS.  REDIRECT TO WeightCards.");
-        this.handler.state = states.WEIGHTS;
-        this.emitWithState("WeightCards");
-    },
-    "NumberCardsIntent": function() {
-        console.log(D + "NumberCardsIntent.  STATE == START.  SETTING STATE = NUMBERS.  REDIRECT TO NumberCards.");
-        this.handler.state = states.NUMBERS;
-        this.emitWithState("NumberCards");
-    },
-    "SymbolCardsIntent": function() {
-        console.log(D + "SymbolCardsIntent.  STATE == START.  SETTING STATE = SYMBOLS.  REDIRECT TO SymbolCards.");
-        this.handler.state = states.SYMBOLS;
-        this.emitWithState("SymbolCards");
-    },
-    "AMAZON.StartOverIntent": function(){
-        this.handler.state = states.START;
-        this.emitWithState("BeginHere");
-    },
-    "Unhandled": function()
-    {
-        console.log(D + "UNHANDLED INTENT.  STATE == START.  REDIRECTING TO BeginHere.");
-        this.emitWithState("BeginHere");
-    }
-});
-
-const nameHandlers = Alexa.CreateStateHandler(states.NAMES,
-{
-    "NameCards": function() {
-        this.emit(":ask", "OK.  We're doing element names.  I will give you a series of symbols, and you have to tell me what the name of that element is.  Are you ready?");
-    },
-    "ElementIntent": function() {
-        var element = this.event.request.intent.slots.element.value;
-        this.emit(":tell", "You said " + languageStrings.en-US.translation.ELEMENTS[3].name);
-    },
-    "AMAZON.YesIntent": function() {
-        this.emit(":ask", "What is the name of H E?");
-    },
-    "AMAZON.NoIntent": function() {
-
-    },
-    "AMAZON.StartOverIntent": function(){
-        this.handler.state = states.START;
-        this.emitWithState("BeginHere");
-    },
-    "Unhandled": function()
-    {
-        console.log(D + "UNHANDLED INTENT.  STATE == NAMES. SETTING STATE = START.  REDIRECTING TO BeginHere.");
-        this.handler.state = states.START;
-        this.emitWithState("LaunchRequest");
-    }
-});
 
 exports.handler = (event, context) => {
     const alexa = Alexa.handler(event, context);
     alexa.AppId = APP_ID;
-    //alexa.resources = languageStrings;
-    alexa.registerHandlers(handlers, startHandlers, nameHandlers);
+    alexa.resources = languageStrings;
+    alexa.registerHandlers(handlers);
     alexa.execute();
 };
+
+function writeSlots(slots)
+{
+    console.log(D + "BEGIN WRITING SLOTS.");
+    for (var slot in slots)
+    {
+        console.log(D + slot);
+        var slotName=slots[slot].name;
+        var slotValue=slots[slot].value;
+        //console.log(key + ' : ' + data[key]);
+        console.log(D + slot + ' > ' + slotName + ' > '+ slotValue);
+    }
+    console.log(D + "DONE WRITING SLOTS.")
+}
+
+function getRandom(number)
+{
+    return Math.floor(Math.random() * number);
+}
+
+function getRandomSymbolSpeech(symbol)
+{
+    return "<say-as interpret-as='spell-out'>" + symbol + "</say-as>";
+}
 
 var languageStrings = {
     "en-GB": {
@@ -124,26 +72,45 @@ var languageStrings = {
     },
     "en-US": {
         "translation": {
-            "ELEMENTS": [               {number: 1,  name: "Hydrogen",   symbol: "H",   weight: 1.008,  type: "Nonmetal"},
-                                        {number: 2,  name: "Helium",     symbol: "He",  weight: 4.003,  type: "Noble Gas"},
-                                        {number: 3,  name: "Lithium",    symbol: "Li",  weight: 6.941,  type: "Alkali Metal"},
-                                        {number: 4,  name: "Beryllium",  symbol: "Be",  weight: 9.012,  type: "Alkaline Earth"},
-                                        {number: 5,  name: "Boron",      symbol: "B",   weight: 10.811, type: "Semimetal"},
-                                        {number: 6,  name: "Carbon",     symbol: "C",   weight: 12.011, type: "Nonmetal"},
-                                        {number: 7,  name: "Nitrogen",   symbol: "N",   weight: 14.007, type: "Nonmetal"},
-                                        {number: 8,  name: "Oxygen",     symbol: "O",   weight: 15.999, type: "Nonmetal"},
-                                        {number: 9,  name: "Fluorine",   symbol: "F",   weight: 18.998, type: "Halogen"},
-                                        {number: 10, name: "Neon",       symbol: "Ne",  weight: 20.180, type: "Noble Gas"},
-                                        {number: 11, name: "Sodium",     symbol: "Na",  weight: 22.990, type: "Alkali Metal"},
-                                        {number: 12, name: "Magnesium",  symbol: "Mg",  weight: 24.305, type: "Alkaline Earth"},
-                                        {number: 13, name: "Aluminum",   symbol: "Al",  weight: 26.982, type: "Basic Metal"},
-                                        {number: 14, name: "Silicon",    symbol: "Si",  weight: 28.086, type: "Semimetal"},
-                                        {number: 15, name: "Phosphorus", symbol: "P",   weight: 30.974, type: "Nonmetal"},
-                                        {number: 16, name: "Sulfur",     symbol: "S",   weight: 32.066, type: "Nonmetal"},
-                                        {number: 17, name: "Chlorine",   symbol: "Cl",  weight: 35.453, type: "Halogen"},
-                                        ],
+            "ELEMENTS": [           {"number": 1,  "name": "Hydrogen",   "symbol": "H",   "weight": 1.008,  "type": "Nonmetal"},
+                                    {"number": 2,  "name": "Helium",     "symbol": "He",  "weight": 4.003,  "type": "Noble Gas"},
+                                    {"number": 3,  "name": "Lithium",    "symbol": "Li",  "weight": 6.94,   "type": "Alkali Metal"},
+                                    {"number": 4,  "name": "Beryllium",  "symbol": "Be",  "weight": 9.012,  "type": "Alkaline Earth Metal"},
+                                    {"number": 5,  "name": "Boron",      "symbol": "B",   "weight": 10.81,  "type": "Metalloid"},
+                                    {"number": 6,  "name": "Carbon",     "symbol": "C",   "weight": 12.011, "type": "Nonmetal"},
+                                    {"number": 7,  "name": "Nitrogen",   "symbol": "N",   "weight": 14.007, "type": "Nonmetal"},
+                                    {"number": 8,  "name": "Oxygen",     "symbol": "O",   "weight": 15.999, "type": "Nonmetal"},
+                                    {"number": 9,  "name": "Fluorine",   "symbol": "F",   "weight": 18.998, "type": "Halogen"},
+                                    {"number": 10, "name": "Neon",       "symbol": "Ne",  "weight": 20.180, "type": "Noble Gas"},
+                                    {"number": 11, "name": "Sodium",     "symbol": "Na",  "weight": 22.990, "type": "Alkali Metal"},
+                                    {"number": 12, "name": "Magnesium",  "symbol": "Mg",  "weight": 24.305, "type": "Alkaline Earth Metal"},
+                                    {"number": 13, "name": "Aluminum",   "symbol": "Al",  "weight": 26.982, "type": "Post-transition Metal"},
+                                    {"number": 14, "name": "Silicon",    "symbol": "Si",  "weight": 28.085, "type": "Metalloid"},
+                                    {"number": 15, "name": "Phosphorus", "symbol": "P",   "weight": 30.974, "type": "Nonmetal", "misspelling": "Phosphorous"},
+                                    {"number": 16, "name": "Sulfur",     "symbol": "S",   "weight": 32.06,  "type": "Nonmetal"},
+                                    {"number": 17, "name": "Chlorine",   "symbol": "Cl",  "weight": 35.45,  "type": "Halogen"},
+                                    {"number": 18, "name": "Argon",      "symbol": "Ar",  "weight": 39.948, "type": "Noble Gas"},
+                                    {"number": 19, "name": "Potassium",  "symbol": "K",   "weight": 39.098, "type": "Alkali Metal"},
+                                    {"number": 20, "name": "Calcium",    "symbol": "Ca",  "weight": 40.078, "type": "Alkaline Earth Metal"},
+                                    {"number": 21, "name": "Scandium",   "symbol": "Sc",  "weight": 44.956, "type": "Transition Metal"},
+                                    {"number": 22, "name": "Titanium",   "symbol": "Ti",  "weight": 47.867, "type": "Transition Metal"},
+                                    {"number": 23, "name": "Vanadium",   "symbol": "V",   "weight": 50.942, "type": "Transition Metal"},
+                                    {"number": 24, "name": "Chromium",   "symbol": "Cr",  "weight": 51.996, "type": "Transition Metal"},
+                                    {"number": 25, "name": "Manganese",  "symbol": "Mn",  "weight": 54.938, "type": "Transition Metal"},
+                                    {"number": 26, "name": "Iron",       "symbol": "Fe",  "weight": 55.845, "type": "Transition Metal"},
+                                    {"number": 27, "name": "Cobalt",     "symbol": "Co",  "weight": 58.933, "type": "Transition Metal"},
+                                    {"number": 28, "name": "Nickel",     "symbol": "Ni",  "weight": 58.693, "type": "Transition Metal"},
+                                    {"number": 29, "name": "Copper",     "symbol": "Cu",  "weight": 63.546, "type": "Transition Metal"},
+                                    {"number": 30, "name": "Zinc",       "symbol": "Zn",  "weight": 65.38,  "type": "Transition Metal"},
+                                    {"number": 31, "name": "Gallium",    "symbol": "Ga",  "weight": 69.723, "type": "Post-transition Metal"},
+                                    {"number": 32, "name": "Germanium",  "symbol": "Ge",  "weight": 72.63,  "type": "Metalloid"},
+                                    {"number": 33, "name": "Arsenic",    "symbol": "As",  "weight": 74.922, "type": "Metalloid"},
+                                    {"number": 34, "name": "Selenium",   "symbol": "Se",  "weight": 78.96,  "type": "Nonmetal"},
+                                    {"number": 35, "name": "Bromine",    "symbol": "Br",  "weight": 79.904, "type": "Halogen"},
+                                    {"number": 36, "name": "Krypton",    "symbol": "Kr",  "weight": 83.978, "type": "Noble Gas"}
+                                    ],
 
-            "STOP_MESSAGE" : [          "Goodbye!  Let's do this again sometime!", "OK.  We can try again later.", "Bye bye!"],
+            "STOP_MESSAGE" :           "Goodbye!  Let's do this again sometime!",
             "APP_GOODBYE" : [           "Thanks for using Send To Friend! Goodbye!"]
         }
     },
