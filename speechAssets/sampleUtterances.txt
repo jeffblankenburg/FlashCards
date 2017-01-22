@@ -1,19 +1,5 @@
-ElementIntent the answer is {element}
-ElementIntent my answer is {element}
-ElementIntent is it {element}
-ElementIntent {element} is my answer
-ElementIntent {element}
+ElementIntent about {element}
 
-AMAZON.StartOverIntent start game
-AMAZON.StartOverIntent new game
-AMAZON.StartOverIntent start
-AMAZON.StartOverIntent start new game
-
-DontKnowIntent i don't know
-DontKnowIntent don't know
-DontKnowIntent skip
-DontKnowIntent i don't know that
-DontKnowIntent who knows
-DontKnowIntent i don't know this question
-DontKnowIntent i don't know that one
-DontKnowIntent dunno
+SymbolIntent {letterone}
+SymbolIntent {letterone} {lettertwo}
+SymbolIntent {letterone} {lettertwo} {letterthree}

@@ -7,10 +7,11 @@ const APP_ID = "amzn1.ask.skill.9fa2bb31-c881-4a4f-9dfe-491b382e7519";  // TODO 
 
 const handlers = {
      "LaunchRequest": function() {
-        this.emit(":tell", "LaunchRequest");
+        console.log(D + "LAUNCHREQUEST");
+        this.emit(":ask", "LaunchRequest");
      },
      "ElementIntent": function() {
-         console.log("this.event.request.intent.slots = " + this.event.request.intent.slots);
+         console.log("this.event.request.intent.slots = " + JSON.stringify(this.event.request));
          writeSlots(this.event.request.intent.slots);
         var requestedElement = this.event.request.intent.slots.element.value;
         console.log(D + "DescribeElement.  STATE == DESCRIBE.  Requested Element: " + requestedElement);
@@ -25,6 +26,22 @@ const handlers = {
         }
         console.log(D + "element[0].symbol == " + element[0].symbol);
         this.emit(":tell", element[0].symbol);
+    },
+    "SymbolIntent": function() {
+        var letter1 = this.event.request.intent.slots.letterone.value;
+        console.log("LETTER ONE == " + letter1);
+
+        var elementArray = this.t("ELEMENTS");
+        console.log(D + "elementArray == " + elementArray);
+        var element = elementArray.filter(x => x.symbol.toLowerCase() === letter1.toLowerCase());
+        this.emit(":tell", element[0].name);
+        /*
+        var letter2 = this.event.request.intent.slots.lettertwo.value;
+        console.log("LETTERTWO == " + letter2);
+        var letter3 = this.event.request.intent.slots.letterthree.value;
+        console.log("LETTER THREE == " + letter3);
+        this.emit(":tell", "Letters were <say-as interpret-as='spell-out'>" + letter1 + letter2 + letter3 + "</say-as>");
+        */
     },
     "Unhandled": function() {
         console.log(D + "UNHANDLED!");
